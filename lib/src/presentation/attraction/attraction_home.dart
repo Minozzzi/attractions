@@ -2,7 +2,7 @@ import 'package:attractions/src/application/attraction_list_service.dart';
 import 'package:attractions/src/application/attraction_remove_service.dart';
 import 'package:attractions/src/data/attraction_repository.dart';
 import 'package:attractions/src/domain/attraction.dart';
-import 'package:attractions/src/presentation/attraction/attraction_create.dart';
+import 'package:attractions/src/presentation/attraction/attraction_modal.dart';
 import 'package:attractions/src/presentation/attraction/attraction_list.dart';
 import 'package:attractions/src/widget/floating_button.dart';
 import 'package:flutter/material.dart';
