@@ -9,8 +9,4 @@ class AttractionListService {
   Future<List<Attraction>> getAttractionList() async {
     return await _attractionRepository.getAttractions();
   }
-
-  Future<Attraction> getOneAttraction(int id) async {
-    return await _attractionRepository.getOneAttraction(id);
-  }  
 }
