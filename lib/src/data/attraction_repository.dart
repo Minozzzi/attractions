@@ -11,6 +11,14 @@ class AttractionRepository {
     _attractions.add(attraction);
   }
 
+  Future<void> updateAttraction(Attraction attraction) async {
+    final attractionIndexToUpdate =
+        _attractions.indexWhere((item) => item.id == attraction.id);
+    if (attractionIndexToUpdate == -1) return;
+
+    _attractions[attractionIndexToUpdate] = attraction;
+  }
+
   Future<void> removeAttraction(Attraction attraction) async {
     _attractions.remove(attraction);
   }

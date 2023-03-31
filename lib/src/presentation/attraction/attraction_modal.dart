@@ -1,4 +1,5 @@
 import 'package:attractions/src/application/attraction_create_service.dart';
+import 'package:attractions/src/application/attraction_update_service.dart';
 import 'package:attractions/src/data/attraction_repository.dart';
 import 'package:attractions/src/domain/attraction.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'dart:math';
 
 class AttractionModal extends StatefulWidget {
   final AttractionCreateService attractionCreateService;
+  final AttractionUpdateService attractionUpdateService;
   final bool isViewOnly;
   final bool isEditing;
   final Attraction? attraction;
@@ -13,6 +15,7 @@ class AttractionModal extends StatefulWidget {
   const AttractionModal(
       {Key? key,
       required this.attractionCreateService,
+      required this.attractionUpdateService,
       required this.isViewOnly,
       required this.isEditing,
       this.attraction})
@@ -32,11 +35,12 @@ class AttractionModalState extends State<AttractionModal> {
   @override
   void initState() {
     super.initState();
-    if (widget.attraction == null) return;
 
-    nameController.text = widget.attraction?.name ?? '';
-    descriptionController.text = widget.attraction?.description ?? '';
-    differentialsController.text = widget.attraction?.differentials ?? '';
+    if (widget.attraction != null) {
+      nameController.text = widget.attraction?.name ?? '';
+      descriptionController.text = widget.attraction?.description ?? '';
+      differentialsController.text = widget.attraction?.differentials ?? '';
+    }
 
     if (widget.isViewOnly) {
       pageTitle = 'Visualizar atração';
@@ -102,14 +106,36 @@ class AttractionModalState extends State<AttractionModal> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: widget.isViewOnly ? null : createAttraction,
-                child: const Text('Adicionar'),
+                onPressed: getOnPressed(),
+                child: Text(widget.isEditing || widget.isViewOnly
+                    ? 'Atualizar'
+                    : 'Adicionar'),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  VoidCallback? getOnPressed() {
+    if (widget.isViewOnly) return null;
+    if (widget.isEditing) return updateAttraction;
+    return createAttraction;
+  }
+
+  void updateAttraction() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      final Attraction attractionToUpdate = Attraction(
+          id: widget.attraction!.id,
+          name: nameController.text,
+          description: descriptionController.text,
+          differentials: differentialsController.text,
+          createdAt: widget.attraction!.createdAt);
+      await widget.attractionUpdateService.updateAttraction(attractionToUpdate);
+      Navigator.pop(context, attractionToUpdate);
+    }
   }
 
   void createAttraction() async {

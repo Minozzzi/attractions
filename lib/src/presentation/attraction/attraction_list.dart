@@ -8,12 +8,14 @@ import 'package:intl/intl.dart';
 class AttractionList extends StatelessWidget {
   final List<Attraction> attractions;
   final Function onSlideRight;
+  final Function onSlideLeft;
   final Function onTapCard;
 
   const AttractionList(
       {super.key,
       required this.attractions,
       required this.onSlideRight,
+      required this.onSlideLeft,
       required this.onTapCard});
 
   @override
@@ -24,6 +26,7 @@ class AttractionList extends StatelessWidget {
         return AttractionItem(
             attraction: attractions[index],
             onSlideRight: onSlideRight,
+            onSlideLeft: onSlideLeft,
             onTapCard: onTapCard);
       },
     );
@@ -33,12 +36,14 @@ class AttractionList extends StatelessWidget {
 class AttractionItem extends StatelessWidget {
   final Attraction attraction;
   final Function onSlideRight;
+  final Function onSlideLeft;
   final Function onTapCard;
 
   const AttractionItem(
       {super.key,
       required this.attraction,
       required this.onSlideRight,
+      required this.onSlideLeft,
       required this.onTapCard});
 
   @override
@@ -89,6 +94,9 @@ class AttractionItem extends StatelessWidget {
   void onDismissed(DismissDirection direction) {
     if (direction == DismissDirection.startToEnd) {
       onSlideRight(attraction);
+      return;
     }
+
+    onSlideLeft(attraction);
   }
 }

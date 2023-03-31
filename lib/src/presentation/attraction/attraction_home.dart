@@ -1,10 +1,12 @@
 import 'package:attractions/src/application/attraction_create_service.dart';
 import 'package:attractions/src/application/attraction_list_service.dart';
 import 'package:attractions/src/application/attraction_remove_service.dart';
+import 'package:attractions/src/application/attraction_update_service.dart';
 import 'package:attractions/src/data/attraction_repository.dart';
 import 'package:attractions/src/domain/attraction.dart';
 import 'package:attractions/src/presentation/attraction/attraction_modal.dart';
 import 'package:attractions/src/presentation/attraction/attraction_list.dart';
+import 'package:attractions/src/presentation/attraction/attraction_filter.dart';
 import 'package:attractions/src/widget/floating_button.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +26,6 @@ class AttractionHomeState extends State<AttractionHome> {
       AttractionListService(AttractionHome._attractionRepository);
 
   late final AttractionRemoveService _attractionRemoveService;
-  late final AttractionCreateService _attractionCreateService;
 
   @override
   void initState() {
@@ -33,8 +34,6 @@ class AttractionHomeState extends State<AttractionHome> {
     _attractionRemoveService = AttractionRemoveService(
         attractionRepository: AttractionHome._attractionRepository,
         onRemoved: onRemoved);
-    _attractionCreateService =
-        AttractionCreateService(AttractionHome._attractionRepository);
   }
 
   @override
@@ -50,6 +49,9 @@ class AttractionHomeState extends State<AttractionHome> {
   AppBar _createAppBar() {
     return AppBar(
       title: const Text('Atrações'),
+      actions: [
+        IconButton(onPressed: _openFilters, icon: const Icon(Icons.filter_list)),
+      ],
     );
   }
 
@@ -78,6 +80,7 @@ class AttractionHomeState extends State<AttractionHome> {
           key: UniqueKey(),
           attractions: attractions,
           onSlideRight: _attractionRemoveService.removeAttraction,
+          onSlideLeft: updateAttraction,
           onTapCard: onTapCard);
     }
 
@@ -107,6 +110,8 @@ class AttractionHomeState extends State<AttractionHome> {
       return AttractionModal(
         attractionCreateService:
             AttractionCreateService(AttractionHome._attractionRepository),
+        attractionUpdateService:
+            AttractionUpdateService(AttractionHome._attractionRepository),
         isEditing: false,
         isViewOnly: false,
       );
@@ -119,14 +124,44 @@ class AttractionHomeState extends State<AttractionHome> {
     }
   }
 
+  void updateAttraction(Attraction attraction) async {
+    final updatedAttraction =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return AttractionModal(
+        attractionCreateService:
+            AttractionCreateService(AttractionHome._attractionRepository),
+        attractionUpdateService:
+            AttractionUpdateService(AttractionHome._attractionRepository),
+        isEditing: true,
+        isViewOnly: false,
+        attraction: attraction,
+      );
+    }));
+
+    if (updatedAttraction != null) {
+      setState(() {
+        _attractionsFuture = _attractionListService.getAttractionList();
+      });
+    }
+  }
+
   void onTapCard(Attraction attraction) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AttractionModal(
-        attractionCreateService: _attractionCreateService,
+        attractionCreateService:
+            AttractionCreateService(AttractionHome._attractionRepository),
+        attractionUpdateService:
+            AttractionUpdateService(AttractionHome._attractionRepository),
         attraction: attraction,
         isViewOnly: true,
         isEditing: false,
       );
+    }));
+  }
+
+  void _openFilters() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return AttractionFilters();
     }));
   }
 }
