@@ -2,11 +2,11 @@ import 'package:attractions/src/data/attraction_repository.dart';
 import 'package:attractions/src/domain/attraction.dart';
 
 class AttractionCreateService {
-  final AttractionRepository _attractionListRepository;
+  final AttractionRepository _attractionRepository;
 
-  AttractionCreateService(this._attractionListRepository);
+  AttractionCreateService(this._attractionRepository);
 
   Future<void> createAttraction(Attraction attraction) async {
-    await _attractionListRepository.addAttraction(attraction);
+    await _attractionRepository.addAttraction(attraction);
   }
 }
