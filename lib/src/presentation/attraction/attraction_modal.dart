@@ -4,27 +4,55 @@ import 'package:attractions/src/domain/attraction.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class AttractionCreate extends StatefulWidget {
-  final AttractionRepository attractionRepository;
+class AttractionModal extends StatefulWidget {
+  final AttractionCreateService attractionCreateService;
+  final bool isViewOnly;
+  final bool isEditing;
+  final Attraction? attraction;
 
-  const AttractionCreate({Key? key, required this.attractionRepository})
+  const AttractionModal(
+      {Key? key,
+      required this.attractionCreateService,
+      required this.isViewOnly,
+      required this.isEditing,
+      this.attraction})
       : super(key: key);
 
   @override
-  AttractionCreateState createState() => AttractionCreateState();
+  AttractionModalState createState() => AttractionModalState();
 }
 
-class AttractionCreateState extends State<AttractionCreate> {
+class AttractionModalState extends State<AttractionModal> {
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
   final differentialsController = TextEditingController();
+  late String pageTitle;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.attraction == null) return;
+
+    nameController.text = widget.attraction?.name ?? '';
+    descriptionController.text = widget.attraction?.description ?? '';
+    differentialsController.text = widget.attraction?.differentials ?? '';
+
+    if (widget.isViewOnly) {
+      pageTitle = 'Visualizar atração';
+      return;
+    }
+
+    pageTitle = widget.isEditing
+        ? 'Atualizar atração ${widget.attraction?.name}'
+        : 'Criar nova atração';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Criar Atração'),
+          title: Text(pageTitle),
         ),
         body: _createBody());
   }
@@ -48,6 +76,7 @@ class AttractionCreateState extends State<AttractionCreate> {
                 }
                 return null;
               },
+              enabled: !widget.isViewOnly,
             ),
             TextFormField(
               controller: descriptionController,
@@ -60,20 +89,20 @@ class AttractionCreateState extends State<AttractionCreate> {
                 }
                 return null;
               },
-              onSaved: (value) {},
+              enabled: !widget.isViewOnly,
             ),
             TextFormField(
               controller: differentialsController,
               decoration: const InputDecoration(
                 labelText: 'Diferenciais',
               ),
-              onSaved: (value) {},
+              enabled: !widget.isViewOnly,
             ),
             const Spacer(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: createAttraction,
+                onPressed: widget.isViewOnly ? null : createAttraction,
                 child: const Text('Adicionar'),
               ),
             ),
@@ -86,14 +115,13 @@ class AttractionCreateState extends State<AttractionCreate> {
   void createAttraction() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final service = AttractionCreateService(widget.attractionRepository);
       final Attraction newAttraction = Attraction(
           id: Random().nextInt(1001),
           name: nameController.text,
           description: descriptionController.text,
           differentials: differentialsController.text,
           createdAt: DateTime.now());
-      await service.createAttraction(newAttraction);
+      await widget.attractionCreateService.createAttraction(newAttraction);
       Navigator.pop(context, newAttraction);
     }
   }

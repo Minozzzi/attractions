@@ -1,3 +1,4 @@
+import 'package:attractions/src/application/attraction_create_service.dart';
 import 'package:attractions/src/application/attraction_list_service.dart';
 import 'package:attractions/src/application/attraction_remove_service.dart';
 import 'package:attractions/src/data/attraction_repository.dart';
@@ -23,6 +24,7 @@ class AttractionHomeState extends State<AttractionHome> {
       AttractionListService(AttractionHome._attractionRepository);
 
   late final AttractionRemoveService _attractionRemoveService;
+  late final AttractionCreateService _attractionCreateService;
 
   @override
   void initState() {
@@ -31,6 +33,8 @@ class AttractionHomeState extends State<AttractionHome> {
     _attractionRemoveService = AttractionRemoveService(
         attractionRepository: AttractionHome._attractionRepository,
         onRemoved: onRemoved);
+    _attractionCreateService =
+        AttractionCreateService(AttractionHome._attractionRepository);
   }
 
   @override
@@ -71,10 +75,10 @@ class AttractionHomeState extends State<AttractionHome> {
     if (snapshot.hasData && hasDataLength) {
       List<Attraction> attractions = snapshot.data!;
       return AttractionList(
-        key: UniqueKey(),
-        attractions: attractions,
-        onSlideRight: _attractionRemoveService.removeAttraction,
-      );
+          key: UniqueKey(),
+          attractions: attractions,
+          onSlideRight: _attractionRemoveService.removeAttraction,
+          onTapCard: onTapCard);
     }
 
     return Center(
@@ -100,8 +104,11 @@ class AttractionHomeState extends State<AttractionHome> {
   void addAttraction() async {
     final newAttraction =
         await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return AttractionCreate(
-        attractionRepository: AttractionHome._attractionRepository,
+      return AttractionModal(
+        attractionCreateService:
+            AttractionCreateService(AttractionHome._attractionRepository),
+        isEditing: false,
+        isViewOnly: false,
       );
     }));
 
@@ -110,5 +117,16 @@ class AttractionHomeState extends State<AttractionHome> {
         _attractionsFuture = _attractionListService.getAttractionList();
       });
     }
+  }
+
+  void onTapCard(Attraction attraction) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return AttractionModal(
+        attractionCreateService: _attractionCreateService,
+        attraction: attraction,
+        isViewOnly: true,
+        isEditing: false,
+      );
+    }));
   }
 }
