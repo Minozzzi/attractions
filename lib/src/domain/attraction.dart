@@ -1,4 +1,5 @@
 class Attraction {
+  static const TABLE_NAME = 'attractions';
   static const FIELD_ID = 'id';
   static const FIELD_NAME = 'name';
   static const FIELD_DESCRIPTION = 'description';
