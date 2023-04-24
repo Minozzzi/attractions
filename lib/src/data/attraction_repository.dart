@@ -5,21 +5,12 @@ import 'package:sqflite/sqflite.dart';
 class AttractionRepository {
   final dbProvider = DatabaseProvider.instance;
 
-  late Database database;
-
-  AttractionRepository() {
-    _init();
-  }
-
-  Future<void> _init() async {
-    database = await dbProvider.database;
-  }
-
   Future<List<Attraction>> getAttractions({
     String filters = '',
     String fieldOrderBy  = Attraction.FIELD_ID,
     bool ascending = true,
   }) async {
+    final database = await dbProvider.database;
     String? where;
 
     if (filters.isNotEmpty) {
@@ -39,6 +30,7 @@ class AttractionRepository {
   }
 
   Future<void> addAttraction(Attraction attraction) async {
+    final database = await dbProvider.database;
     final values = attraction.toJson();
     values.remove(Attraction.FIELD_ID);
     final id = await database.insert(Attraction.TABLE_NAME, values);
@@ -46,13 +38,16 @@ class AttractionRepository {
   }
 
   Future<void> updateAttraction(Attraction attraction) async {
+    final database = await dbProvider.database;
     final values = attraction.toJson();
     values.remove(Attraction.FIELD_ID);
+    values.remove(Attraction.FIELD_CREATED_AT);
     await database.update(Attraction.TABLE_NAME, values,
         where: '${Attraction.FIELD_ID} = ?', whereArgs: [attraction.id]);
   }
 
   Future<void> removeAttraction(Attraction attraction) async {
+    final database = await dbProvider.database;
     await database.delete(Attraction.TABLE_NAME,
         where: '${Attraction.FIELD_ID} = ?', whereArgs: [attraction.id]);
   }

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Attraction {
   static const TABLE_NAME = 'attractions';
   static const FIELD_ID = 'id';
@@ -25,7 +27,7 @@ class Attraction {
         name: json['name'],
         description: json['description'],
         differentials: json['differentials'],
-        createdAt: json['createdAt']);
+        createdAt: DateFormat("yyyy-MM-dd").parse(json['createdAt']));
   }
 
   Map<String, dynamic> toJson() {
@@ -34,7 +36,7 @@ class Attraction {
       'name': name,
       'description': description,
       'differentials': differentials,
-      'createdAt': createdAt
+      'createdAt': DateFormat("yyyy-MM-dd").format(createdAt)
     };
   }
 }

@@ -27,12 +27,12 @@ class DatabaseProvider {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(''' 
-      CREATE TABLE ${Attraction.TABLE_NAME} (
+      CREATE TABLE IF NOT EXISTS ${Attraction.TABLE_NAME} (
         ${Attraction.FIELD_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${Attraction.FIELD_NAME} TEXT NOT NULL,
         ${Attraction.FIELD_DESCRIPTION} TEXT,
         ${Attraction.FIELD_DIFFERENTIALS} TEXT,
-        ${Attraction.FIELD_CREATED_AT} TEXT NOT NULL
+        ${Attraction.FIELD_CREATED_AT} TEXT NOT NULL);
     ''');
   }
 
