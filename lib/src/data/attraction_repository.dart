@@ -6,15 +6,24 @@ class AttractionRepository {
   final dbProvider = DatabaseProvider.instance;
 
   Future<List<Attraction>> getAttractions({
-    String filters = '',
-    String fieldOrderBy  = Attraction.FIELD_ID,
+    Map<String, dynamic> filters = const {},
+    String fieldOrderBy = Attraction.FIELD_NAME,
     bool ascending = true,
   }) async {
     final database = await dbProvider.database;
     String? where;
 
     if (filters.isNotEmpty) {
-      where = "UPPER(${Attraction.FIELD_NAME}) LIKE UPPER('%$filters%')";
+      final filtersList = filters.entries.map((entry) {
+        final value = entry.value;
+        if (value is String && value.isNotEmpty) {
+          return '${entry.key} LIKE \'%$value%\'';
+        }
+      }).toList();
+
+      filtersList.removeWhere((element) => element == null);
+      if (filtersList.isNotEmpty)
+        where = filtersList.join(' AND ');
     }
 
     final orderBy = '$fieldOrderBy ${ascending ? 'ASC' : 'DESC'}';
@@ -25,8 +34,9 @@ class AttractionRepository {
       orderBy: orderBy,
     );
 
-    return attractions.map((attraction) => Attraction.fromJson(attraction)).toList();
-
+    return attractions
+        .map((attraction) => Attraction.fromJson(attraction))
+        .toList();
   }
 
   Future<void> addAttraction(Attraction attraction) async {

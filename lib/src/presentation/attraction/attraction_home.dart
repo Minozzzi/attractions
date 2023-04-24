@@ -9,6 +9,7 @@ import 'package:attractions/src/presentation/attraction/attraction_list.dart';
 import 'package:attractions/src/presentation/attraction/attraction_filter.dart';
 import 'package:attractions/src/widget/floating_button.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AttractionHome extends StatefulWidget {
   static final _attractionRepository = AttractionRepository();
@@ -30,7 +31,7 @@ class AttractionHomeState extends State<AttractionHome> {
   @override
   void initState() {
     super.initState();
-    _attractionsFuture = _attractionListService.getAttractionList();
+    _refreshAttractions();
     _attractionRemoveService = AttractionRemoveService(
         attractionRepository: AttractionHome._attractionRepository,
         onRemoved: onRemoved);
@@ -50,7 +51,8 @@ class AttractionHomeState extends State<AttractionHome> {
     return AppBar(
       title: const Text('Atrações'),
       actions: [
-        IconButton(onPressed: _openFilters, icon: const Icon(Icons.filter_list)),
+        IconButton(
+            onPressed: _openFilters, icon: const Icon(Icons.filter_list)),
       ],
     );
   }
@@ -100,7 +102,7 @@ class AttractionHomeState extends State<AttractionHome> {
 
   void onRemoved() {
     setState(() {
-      _attractionsFuture = _attractionListService.getAttractionList();
+      _refreshAttractions();
     });
   }
 
@@ -119,7 +121,7 @@ class AttractionHomeState extends State<AttractionHome> {
 
     if (newAttraction != null) {
       setState(() {
-        _attractionsFuture = _attractionListService.getAttractionList();
+        _refreshAttractions();
       });
     }
   }
@@ -140,7 +142,7 @@ class AttractionHomeState extends State<AttractionHome> {
 
     if (updatedAttraction != null) {
       setState(() {
-        _attractionsFuture = _attractionListService.getAttractionList();
+        _refreshAttractions();
       });
     }
   }
@@ -162,6 +164,24 @@ class AttractionHomeState extends State<AttractionHome> {
   void _openFilters() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AttractionFilters();
-    }));
+    })).then((changedFilters) => {
+          if (changedFilters == true)
+            {
+              _refreshAttractions()
+            }
+        });
+  }
+
+  void _refreshAttractions() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final fieldOrder = prefs.getString(AttractionFilters.keyFieldOrder) ?? Attraction.FIELD_NAME;
+    final asceding = prefs.getBool(AttractionFilters.keyAscending) ?? true;
+    final filters = prefs.getString(AttractionFilters.keyFilters) ?? '';
+
+    setState(() {
+      _attractionsFuture = _attractionListService.getAttractionList(
+          fieldOrderBy: fieldOrder, ascending: asceding, filters: filters);
+    });
   }
 }
