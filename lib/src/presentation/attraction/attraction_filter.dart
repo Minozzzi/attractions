@@ -219,7 +219,7 @@ class AttractionFiltersState extends State<AttractionFilters> {
         Attraction.FIELD_NAME: nameFilterController.text,
         Attraction.FIELD_DESCRIPTION: descriptionFilterController.text,
         Attraction.FIELD_DIFFERENTIALS: differentialsFilterController.text,
-        Attraction.FIELD_CREATED_AT: isoDate,
+        Attraction.FIELD_CREATED_AT: isoDate.split('T')[0],
       };
       final filtersString =
           filters.entries.map((e) => '${e.key}:${e.value}').toList().join('|');
