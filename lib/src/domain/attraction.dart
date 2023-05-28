@@ -6,12 +6,16 @@ class Attraction {
   static const FIELD_NAME = 'name';
   static const FIELD_DESCRIPTION = 'description';
   static const FIELD_DIFFERENTIALS = 'differentials';
+  static const FIELD_LATITUDE = 'latitude';
+  static const FIELD_LONGITUDE = 'longitude';
   static const FIELD_CREATED_AT = 'createdAt';
 
   int id;
   final String name;
   final String description;
   final String? differentials;
+  final String? longitude;
+  final String? latitude;
   final DateTime createdAt;
 
   Attraction(
@@ -19,6 +23,8 @@ class Attraction {
       required this.name,
       required this.description,
       this.differentials,
+      this.longitude,
+      this.latitude,
       required this.createdAt});
 
   factory Attraction.fromJson(Map<String, dynamic> json) {
@@ -27,6 +33,8 @@ class Attraction {
         name: json['name'],
         description: json['description'],
         differentials: json['differentials'],
+        longitude: json['longitude'],
+        latitude: json['latitude'],
         createdAt: DateFormat("yyyy-MM-dd").parse(json['createdAt']));
   }
 
@@ -36,6 +44,8 @@ class Attraction {
       'name': name,
       'description': description,
       'differentials': differentials,
+      'longitude': longitude,
+      'latitude': latitude,
       'createdAt': DateFormat("yyyy-MM-dd").format(createdAt)
     };
   }
